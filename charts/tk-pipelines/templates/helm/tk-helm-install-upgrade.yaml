@@ -56,5 +56,6 @@ spec:
             echo Installing chart to external cluster ...
             echo "$(params.cluster_config)" > config
             helm upgrade --install --wait --timeout "$(params.timeout)" --kubeconfig config --namespace "$(params.namespace)" "$(params.name)" "$(params.url)" -f values.yaml
+        fi
 
 
