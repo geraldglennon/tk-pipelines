@@ -1,0 +1,60 @@
+apiVersion: tekton.dev/vbeta1
+kind: Task
+metadata:
+  name: helm-install-upgrade
+  labels:
+    app.kubernetes.io/name: {{ include "tk-pipelines.name" . }}
+    helm.sh/chart: {{ include "tk-pipelines.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+
+spec:
+  description: >-
+    Install or upgrade a helm package
+
+  params:
+    - name: url
+      description: The location of the helm chart
+    - name: cluster_config
+      description: The cluster kube configuration to use
+      default: ""
+    - name: name
+      description: The helm release name
+      default: no-release-name
+    - name: namespace
+      description: The namespace to execute against
+      default: "default"
+    - name: timeout
+      description: The timeout used in the helm command i.e. 400s
+      default: "400s"
+    - name: values
+      description: The values file to be used
+      default: ""
+    - name: image
+      description: Container image to be used
+      default: "alpine/helm:3.6.2"
+  steps:
+    - name: install-upgrade-package
+      image: $(params.image)
+      script: |
+        echo Creating values file
+        echo
+        echo "$(params.values)" > values.yaml
+
+        echo Using values file
+        echo
+        echo cat values.yaml
+
+        echo Using chart from
+        echo
+        echo $(params.url)
+
+        if [[ -z "$(params.cluster_config)" ]]; then
+            echo Installing chart to default cluster ...
+            helm upgrade --install --wait --timeout "$(params.timeout)" --namespace "$(params.namespace)" "$(params.name)" "$(params.url)" -f values.yaml
+        else
+            echo Installing chart to external cluster ...
+            echo "$(params.cluster_config)" > config
+            helm upgrade --install --wait --timeout "$(params.timeout)" --kubeconfig config --namespace "$(params.namespace)" "$(params.name)" "$(params.url)" -f values.yaml
+
+

@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/vbeta1
+kind: Task
+metadata:
+  name: helm-uninstall
+  labels:
+    app.kubernetes.io/name: {{ include "tk-pipelines.name" . }}
+    helm.sh/chart: {{ include "tk-pipelines.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+
+spec:
+  description: >-
+    Uninstall a helm package
+
+  params:
+    - name: cluster_config
+      description: The cluster kube configuration to use
+      default: ""
+    - name: name
+      description: The helm release name
+      default: no-release-name
+    - name: namespace
+      description: The namespace to execute against
+      default: "default"
+    - name: image
+      description: Container image to be used
+      default: "alpine/helm:3.6.2"
+  steps:
+    - name: install-upgrade-package
+      image: $(params.image)
+      script: |
+
+        if [[ -z "$(params.cluster_config)" ]]; then
+            echo Uninstalling chart from default cluster ...
+            helm uninstall "$(params.name)" --namespace "$(params.namespace)"
+        else
+            echo Uninstalling chart from external cluster ...
+            echo "$(params.cluster_config)" > config
+            helm uninstall "$(params.name)" --namespace "$(params.namespace)" --kubeconfig config
+
+

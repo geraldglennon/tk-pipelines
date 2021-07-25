@@ -1,0 +1,41 @@
+apiVersion: tekton.dev/vbeta1
+kind: Task
+metadata:
+  name: helm-rollback
+  labels:
+    app.kubernetes.io/name: {{ include "tk-pipelines.name" . }}
+    helm.sh/chart: {{ include "tk-pipelines.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+
+spec:
+  description: >-
+    Rollback a helm package
+
+  params:
+    - name: cluster_config
+      description: The cluster kube configuration to use
+      default: ""
+    - name: name
+      description: The helm release name
+      default: no-release-name
+    - name: namespace
+      description: The namespace to execute against
+      default: "default"
+    - name: image
+      description: Container image to be used
+      default: "alpine/helm:3.6.2"
+  steps:
+    - name: install-upgrade-package
+      image: $(params.image)
+      script: |
+
+        if [[ -z "$(params.cluster_config)" ]]; then
+            echo Rolling back chart from default cluster ...
+            helm rollback "$(params.name)" --namespace "$(params.namespace)"
+        else
+            echo Rollback back chart from external cluster ...
+            echo "$(params.cluster_config)" > config
+            helm rollback "$(params.name)" --namespace "$(params.namespace)" --kubeconfig config
+
+

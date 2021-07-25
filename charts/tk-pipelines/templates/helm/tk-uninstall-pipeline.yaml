@@ -1,0 +1,14 @@
+apiVersion: tekton.dev/vbeta1
+kind: Pipeline
+metadata:
+  name: rollback-pipeline
+  labels:
+    app.kubernetes.io/name: {{ include "tk-pipelines.name" . }}
+    helm.sh/chart: {{ include "tk-pipelines.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  tasks:
+    - name: helm-uninstall-package
+      taskRef:
+        name: helm-uninstall
