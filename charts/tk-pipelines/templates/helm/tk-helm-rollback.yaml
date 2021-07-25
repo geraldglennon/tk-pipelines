@@ -10,7 +10,7 @@ metadata:
 
 spec:
   description: >-
-    Rollback a helm package
+    Rollback a helm package to previous version
 
   params:
     - name: cluster_config
@@ -32,10 +32,10 @@ spec:
 
         if [[ -z "$(params.cluster_config)" ]]; then
             echo Rolling back chart from default cluster ...
-            helm rollback "$(params.name)" --namespace "$(params.namespace)"
+            helm rollback "$(params.name)" 0 --namespace "$(params.namespace)"
         else
             echo Rollback back chart from external cluster ...
             echo "$(params.cluster_config)" > config
-            helm rollback "$(params.name)" --namespace "$(params.namespace)" --kubeconfig config
+            helm rollback "$(params.name)" 0 --namespace "$(params.namespace)" --kubeconfig config
 
 
