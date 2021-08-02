@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/vbeta1
 kind: Pipeline
 metadata:
-  name: rollback-pipeline
+  name: helm-rollback-pipeline
   labels:
     app.kubernetes.io/name: {{ include "tk-pipelines.name" . }}
     helm.sh/chart: {{ include "tk-pipelines.chart" . }}
