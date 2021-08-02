@@ -8,7 +8,23 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
+  params:
+    - name: cluster_config
+      description: The cluster kube configuration to use
+      default: ""
+    - name: name
+      description: The helm release name
+    - name: namespace
+      description: The namespace to execute against
+      default: "default"
   tasks:
     - name: helm-rollback-package
+      params:
+        - name: cluster_config
+          value: $(params.cluster_config)
+        - name: name
+          value: $(params.name)
+        - name: namespace
+          value: $(params.namespace)
       taskRef:
         name: helm-rollback

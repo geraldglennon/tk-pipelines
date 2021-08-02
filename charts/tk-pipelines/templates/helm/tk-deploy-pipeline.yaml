@@ -8,7 +8,38 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
+  params:
+    - name: url
+      description: The location of the helm chart
+    - name: cluster_config
+      description: The cluster kube configuration to use
+      default: ""
+    - name: name
+      description: The helm release name
+      default: no-release-name
+    - name: namespace
+      description: The namespace to execute against
+      default: "default"
+    - name: timeout
+      description: The timeout used in the helm command i.e. 400s
+      default: "400s"
+    - name: values
+      description: The values file to be used
+      default: ""
   tasks:
     - name: helm-deploy-package
+      params:
+        - name: url
+          value: $(params.url)
+        - name: cluster_config
+          value: $(params.cluster_config)
+        - name: name
+          value: $(params.name)
+        - name: namespace
+          value: $(params.namespace)
+        - name: timeout
+          value: $(params.timeout)
+        - name: values
+          value: $(params.values)
       taskRef:
         name: helm-install-upgrade
