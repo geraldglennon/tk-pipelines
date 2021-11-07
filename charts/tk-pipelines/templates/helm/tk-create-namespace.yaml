@@ -1,0 +1,40 @@
+apiVersion: tekton.dev/vbeta1
+kind: Task
+metadata:
+  name: kubectl-create-namespace
+  labels:
+    app.kubernetes.io/name: {{ include "tk-pipelines.name" . }}
+    helm.sh/chart: {{ include "tk-pipelines.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+
+spec:
+  description: >-
+    Create namespace if it does not exist
+
+  params:
+    - name: cluster_config
+      description: The cluster kube configuration to use
+      default: ""
+    - name: namespace
+      description: The namespace to execute against
+      default: "default"
+    - name: image
+      description: Container image to be used
+      default: "bitnami/kubectl:1.12.5"
+  steps:
+    - name: create-namespace
+      image: $(params.image)
+      script: |
+        kubectl version
+
+        if [[ -z "$(params.cluster_config)" ]]; then
+            echo Creating namespace "$(params.namespace)" to default cluster ...
+            kubectl create namespace "$(params.namespace)" --dry-run -o yaml | kubectl apply -f -
+        else
+            echo Creating namespace "$(params.namespace)" to external cluster ...
+            echo "$(params.cluster_config)" > /tmp/config
+            kubectl create namespace "$(params.namespace)" --dry-run -o yaml | kubectl apply --kubeconfig /tmp/config -f -
+        fi
+
+

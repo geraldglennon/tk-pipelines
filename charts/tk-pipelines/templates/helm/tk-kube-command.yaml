@@ -1,0 +1,45 @@
+apiVersion: tekton.dev/vbeta1
+kind: Task
+metadata:
+  name: kubectl-command
+  labels:
+    app.kubernetes.io/name: {{ include "tk-pipelines.name" . }}
+    helm.sh/chart: {{ include "tk-pipelines.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+
+spec:
+  description: >-
+    Allows a kubectl command to be performed. kubectl command is added automatically
+
+  params:
+    - name: cluster_config
+      description: The cluster kube configuration to use
+      default: ""
+    - name: namespace
+      description: The namespace to execute against
+      default: "default"
+    - name: command
+      description: The kubectl command. e.g. kubectl [command]
+      default: ""
+    - name: image
+      description: Container image to be used
+      default: "bitnami/kubectl:1.12.5"
+  steps:
+    - name: run-kubectl-command
+      image: $(params.image)
+      script: |
+        kubectl version
+
+        echo Running command kubectl "$(params.command)"
+
+        if [[ -z "$(params.cluster_config)" ]]; then
+            echo Running command to default cluster ...
+            kubectl "$(params.command)" --namespace "$(params.namespace)" --dry-run -o yaml | kubectl apply -f -
+        else
+            echo Running command to external cluster ...
+            echo "$(params.cluster_config)" > /tmp/config
+            kubectl "$(params.command)" --namespace "$(params.namespace)" --dry-run -o yaml | kubectl apply --kubeconfig /tmp/config -f -
+        fi
+
+

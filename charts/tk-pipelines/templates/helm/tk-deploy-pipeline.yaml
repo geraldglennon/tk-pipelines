@@ -27,6 +27,13 @@ spec:
       description: The values file to be used
       default: ""
   tasks:
+    - name: create-namespace
+      params:
+        - name: cluster_config
+          value: $(params.cluster_config)
+        - name: namespace
+          value: $(params.namespace)
+      taskRef: kubectl-create-namespace
     - name: helm-deploy-package
       params:
         - name: url
@@ -43,3 +50,5 @@ spec:
           value: $(params.values)
       taskRef:
         name: helm-install-upgrade
+      runAfter:
+        - kubectl-create-namespace
