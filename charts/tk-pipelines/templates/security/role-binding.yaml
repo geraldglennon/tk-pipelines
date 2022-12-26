@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ template "tk-pipelines.name" }}-role-binding
+  name: {{ include "tk-pipelines.name" . }}-role-binding
   labels:
     app.kubernetes.io/name: {{ include "tk-pipelines.name" . }}
     helm.sh/chart: {{ include "tk-pipelines.chart" . }}
@@ -9,8 +9,8 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 subjects:
   - kind: ServiceAccount
-    name: {{ template "tk-pipelines.name" }}
-    namespace: {{ Release.Namspace }}
+    name: {{ include "tk-pipelines.name" . }}
+    namespace: {{ .Release.Namespace }}
 roleRef:
   kind: ClusterRole
   name: {{ .Values.role.name }}
