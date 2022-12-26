@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   workspaces:
-    - name: helmfile-wsl
+    - name: helmfile-ws1
   params:
     - name: url
       description: The location of the helm chart
@@ -53,7 +53,7 @@ spec:
     - name: fetch-helmfile-package
       workspaces:
         - name: package
-          workspace: helmfile-wsl
+          workspace: helmfile-ws1
       params:
         - name: url
           value: $(params.url)
@@ -64,7 +64,7 @@ spec:
       retries: 2
       workspaces:
         - name: deployment
-          workspace: helmfile-wsl
+          workspace: helmfile-ws1
       params:
         - name: namespace
           value: $(params.namespace)

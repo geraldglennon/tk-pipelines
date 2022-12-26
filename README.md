@@ -116,6 +116,15 @@ metadata:
 spec:
   pipelineRef:
     name: helmfile-deploy-https
+  workspaces:
+    - name: helmfile-ws1
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
   params:
     - name: url
       value: https://somewhere/helmfile/chart.tgz
