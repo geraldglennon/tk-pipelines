@@ -14,7 +14,7 @@ to connect to the cluster specified. This file contains the kube config to conne
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: helm-install-upgrade
+  generateName: helm-install-upgrade-
 spec:
   pipelineRef:
     name: helm-deploy-pipeline
@@ -39,7 +39,7 @@ spec:
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: helm-install-app
+  generateName: helm-install-app-
 spec:
   pipelineRef:
     name: helm-deploy-https
@@ -74,7 +74,7 @@ spec:
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: helm-uninstall
+  generateName: helm-uninstall-
 spec:
   pipelineRef:
     name: helm-uninstall-pipeline
@@ -93,7 +93,7 @@ spec:
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: helm-rollback
+  generateName: helm-rollback-
 spec:
   pipelineRef:
     name: helm-rollback-pipeline
@@ -112,7 +112,7 @@ spec:
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: helmfile-deploy-apps
+  generateName: helmfile-deploy-apps-
 spec:
   pipelineRef:
     name: helmfile-deploy-https
