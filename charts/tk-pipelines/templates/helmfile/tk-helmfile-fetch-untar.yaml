@@ -1,0 +1,38 @@
+apiVersion: tekton.dev/vbeta1
+kind: Task
+metadata:
+  name: helmfile-fetch-untar
+  labels:
+    app.kubernetes.io/name: {{ include "tk-pipelines.name" . }}
+    helm.sh/chart: {{ include "tk-pipelines.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+
+spec:
+  description: >-
+    Fetch helmfile and untar .tgz file
+
+  params:
+    - name: url
+      description: The url of the helmfile package of type tgz
+      default: ""
+    - name: image
+      description: Container image to be used
+      default: "quay.io/roboll/helmfile:v0.144.0"
+  steps:
+    - name: install-fetch-untar
+      image: $(params.image)
+      script: |
+        cd ${workspaces.workdir.path}
+        
+        echo "Fetching helmfile package!"
+        curl --insecure -o helmfiles.tgz $(params.url)
+        
+        mkdir helmfiles && tar -zxvf helmfiles.tgz -C helmfiles --strip-components 1
+
+  workspaces:
+    - name: workdir
+      description: The working directory for helmfile
+      mountPath: /package
+
+

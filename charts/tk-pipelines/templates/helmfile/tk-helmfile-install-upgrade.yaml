@@ -1,0 +1,72 @@
+apiVersion: tekton.dev/vbeta1
+kind: Task
+metadata:
+  name: helmfile-install-upgrade
+  labels:
+    app.kubernetes.io/name: {{ include "tk-pipelines.name" . }}
+    helm.sh/chart: {{ include "tk-pipelines.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+
+spec:
+  description: >-
+    Calls helmfile to install or upgrade a package
+
+  params:
+    - name: cluster_config
+      description: The cluster kube configuration to use
+      default: ""
+    - name: namespace
+      description: The namespace to execute against
+      default: "default"
+    - name: username
+      description: Username used to fetch helm charts
+      default: ""
+    - name: password
+      description: Password used to fetch helm charts
+      default: ""
+    - name: values
+      description: The values file to be used
+      default: ""
+    - name: image
+      description: Container image to be used
+      default: "quay.io/roboll/helmfile:v0.144.0"
+  steps:
+    - name: install-upgrade-package
+      image: $(params.image)
+      script: |
+        cd ${workspaces.workdir.path}
+        
+        if [[ -n "$(params.username)"]]; then
+            echo Setting usename and password for repositories
+            echo
+            export HELM_USERNAME=$(params.username)
+            export HELM_PASSWORD=$(params.password)
+        fi
+        
+        echo Creating values file
+        echo
+        echo "$(params.values)" > helmfiles/helmfile-deploy.yaml
+
+        echo Using values file
+        echo
+        cat helmfiles/helmfile-deploy.yaml
+
+        cd helmfiles
+
+        if [[ -z "$(params.cluster_config)" ]]; then
+            echo Installing chart to default cluster ...
+            helmfile --state-values-file helmfile-deploy.yaml --namespace $(params.namespace) apply
+        else
+            echo Installing chart to external cluster ...
+            echo "$(params.cluster_config)" > /config
+            export KUBECONFIG=/config
+            helmfile --state-values-file helmfile-deploy.yaml --namespace $(params.namespace) apply
+        fi
+
+  workspaces:
+    - name: workdir
+      description: The working directory for helmfile
+      mountPath: /package
+
+
