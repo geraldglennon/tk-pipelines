@@ -4,3 +4,6 @@
 
 nameOverride: ""
 fullnameOverride: ""
+
+role:
+  name: cluster-admin

@@ -1,0 +1,108 @@
+apiVersion: tekton.dev/vbeta1
+kind: Pipeline
+metadata:
+  name: helmfile-deploy
+  labels:
+    app.kubernetes.io/name: {{ include "tk-pipelines.name" . }}
+    helm.sh/chart: {{ include "tk-pipelines.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  workspaces:
+    - name: helmfile-wsl
+  params:
+    - name: url
+      description: The location of the helm chart
+    - name: cluster_config
+      description: The cluster kube configuration to use
+      default: ""
+    - name: namespace
+      description: The namespace to execute against
+      default: "default"
+    - name: values
+      description: The values file to be used
+      default: ""
+    - name: docker_config_command
+      description: Creates secret for pulling docker images
+      default: ""
+    - name: username
+      description: Username used to fetch helm charts
+      default: ""
+    - name: password
+      description: Password used to fetch helm charts
+      default: ""
+    - name: cert_secret_name
+      description: The name of the secret to create the tls certificate
+      default: ""
+    - name: cert_pem
+      description: Certificate pem which can contain the certificate generated and root certificate chain
+      default: ""
+    - name: cert_key
+      description: Certificate key used to create certificate
+      default: ""
+  tasks:
+    - name: create-namespace
+      params:
+        - name: cluster_config
+          value: $(params.cluster_config)
+        - name: namespace
+          value: $(params.namespace)
+      taskRef: kubectl-create-namespace
+    - name: create-docker-secret
+      params:
+        - name: cluster_config
+          value: $(params.cluster_config)
+        - name: namespace
+          value: $(params.namespace)
+        - name: command
+          value: $(params.docker_config_command)
+      taskRef:
+        name: kubectl-command
+      runAfter: create-namespace
+    - name: create-tls-certificate
+      params:
+        - name: name
+          value: $(params.cert_secret_name)
+        - name: cluster_config
+          value: $(params.cluster_config)
+        - name: namespace
+          value: $(params.namespace)
+        - name: cert
+          value: $(params.cert_pem)
+        - name: key
+          value: $(params.cert_key)
+      taskRef:
+        name: kubectl-command
+      runAfter: create-namespace
+    - name: fetch-helmfile-package
+      workspaces:
+        - name: package
+          workspace: helmfile-wsl
+      params:
+        - name: url
+          value: $(params.url)
+      taskRef:
+        name: helmfile-fetch-untar
+      runAfter:
+        - create-docker-secret
+        - create-tls-certificate
+    - name: helmfile-install-upgrade
+      retries: 2
+      workspaces:
+        - name: deployment
+          workspace: helmfile-wsl
+      params:
+        - name: namespace
+          value: $(params.namespace)
+        - name: cluster_config
+          value: $(params.cluster_config)
+        - name: username
+          value: $(params.username)
+        - name: password
+          value: $(params.password)
+        - name: values
+          value: $(params.values)
+      taskRef:
+        name: helm-install-upgrade
+      runAfter:
+        - helmfile-fetch-untar
