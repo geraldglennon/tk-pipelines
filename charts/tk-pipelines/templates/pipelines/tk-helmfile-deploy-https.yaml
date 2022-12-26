@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/vbeta1
 kind: Pipeline
 metadata:
-  name: helmfile-deploy
+  name: helmfile-deploy-https
   labels:
     app.kubernetes.io/name: {{ include "tk-pipelines.name" . }}
     helm.sh/chart: {{ include "tk-pipelines.chart" . }}
@@ -23,7 +23,7 @@ spec:
       description: The values file to be used
       default: ""
     - name: docker_config_command
-      description: Creates secret for pulling docker images
+      description: Kubectl command to create docker registry secret
       default: ""
     - name: username
       description: Username used to fetch helm charts
@@ -72,7 +72,7 @@ spec:
         - name: key
           value: $(params.cert_key)
       taskRef:
-        name: kubectl-command
+        name: create-tls-certificate
       runAfter: create-namespace
     - name: fetch-helmfile-package
       workspaces:
