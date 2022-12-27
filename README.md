@@ -16,6 +16,7 @@ kind: PipelineRun
 metadata:
   generateName: helm-install-upgrade-
 spec:
+  serviceAccountName: tk-pipelines
   pipelineRef:
     name: helm-deploy-pipeline
   params:
@@ -41,6 +42,7 @@ kind: PipelineRun
 metadata:
   generateName: helm-install-app-
 spec:
+  serviceAccountName: tk-pipelines
   pipelineRef:
     name: helm-deploy-https
   params:
@@ -76,6 +78,7 @@ kind: PipelineRun
 metadata:
   generateName: helm-uninstall-
 spec:
+  serviceAccountName: tk-pipelines
   pipelineRef:
     name: helm-uninstall-pipeline
   params:
@@ -95,6 +98,7 @@ kind: PipelineRun
 metadata:
   generateName: helm-rollback-
 spec:
+  serviceAccountName: tk-pipelines
   pipelineRef:
     name: helm-rollback-pipeline
   params:
@@ -114,6 +118,7 @@ kind: PipelineRun
 metadata:
   generateName: helmfile-deploy-apps-
 spec:
+  serviceAccountName: tk-pipelines
   pipelineRef:
     name: helmfile-deploy-https
   workspaces:

@@ -32,7 +32,7 @@ spec:
       default: ""
     - name: image
       description: Container image to be used
-      default: "alpine/helm:3.6.2"
+      default: "alpine/helm:3.10.2"
   steps:
     - name: install-upgrade-package
       image: $(params.image)

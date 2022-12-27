@@ -21,7 +21,7 @@ spec:
       default: "default"
     - name: image
       description: Container image to be used
-      default: "bitnami/kubectl:1.12.5"
+      default: "bitnami/kubectl:1.25.5"
   steps:
     - name: create-namespace
       image: $(params.image)
