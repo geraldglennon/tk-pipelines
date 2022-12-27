@@ -33,7 +33,8 @@ spec:
           value: $(params.cluster_config)
         - name: namespace
           value: $(params.namespace)
-      taskRef: kubectl-create-namespace
+      taskRef:
+        name: kubectl-create-namespace
     - name: helm-deploy-package
       params:
         - name: url
@@ -51,4 +52,4 @@ spec:
       taskRef:
         name: helm-install-upgrade
       runAfter:
-        - kubectl-create-namespace
+        - create-namespace

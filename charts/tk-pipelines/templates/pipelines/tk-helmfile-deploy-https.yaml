@@ -47,7 +47,8 @@ spec:
           value: $(params.cluster_config)
         - name: namespace
           value: $(params.namespace)
-      taskRef: kubectl-create-namespace
+      taskRef:
+        name: kubectl-create-namespace
     - name: create-docker-secret
       params:
         - name: cluster_config
@@ -58,7 +59,8 @@ spec:
           value: $(params.docker_config_command)
       taskRef:
         name: kubectl-command
-      runAfter: create-namespace
+      runAfter:
+        - create-namespace
     - name: create-tls-certificate
       params:
         - name: name
@@ -73,7 +75,8 @@ spec:
           value: $(params.cert_key)
       taskRef:
         name: create-tls-certificate
-      runAfter: create-namespace
+      runAfter:
+       - create-namespace
     - name: fetch-helmfile-package
       workspaces:
         - name: package
@@ -105,4 +108,4 @@ spec:
       taskRef:
         name: helm-install-upgrade
       runAfter:
-        - helmfile-fetch-untar
+        - fetch-helmfile-package
