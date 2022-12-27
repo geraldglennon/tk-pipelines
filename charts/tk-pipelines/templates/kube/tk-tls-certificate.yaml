@@ -47,11 +47,11 @@ spec:
 
         if [[ -z "$(params.cluster_config)" ]]; then
             echo creating certificate to default cluster ...
-            kubectl create tls "$(params.name)" --cert=/tmp/cert.crt --key=/tmp/cert.key --namespace "$(params.namespace)" --dry-run -o yaml | kubectl apply -f -
+            kubectl create secret tls "$(params.name)" --cert=/tmp/cert.crt --key=/tmp/cert.key --namespace "$(params.namespace)" --dry-run=client -o yaml | kubectl apply -f -
         else
             echo creating certificate to external cluster ...
             echo "$(params.cluster_config)" > /tmp/config
-            kubectl create tls "$(params.name)" --cert=/tmp/cert.crt --key=/tmp/cert.key --namespace "$(params.namespace)" --dry-run -o yaml | kubectl apply --kubeconfig /tmp/config -f -
+            kubectl create secret tls "$(params.name)" --cert=/tmp/cert.crt --key=/tmp/cert.key --namespace "$(params.namespace)" --dry-run=client -o yaml | kubectl apply --kubeconfig /tmp/config -f -
         fi
 
 

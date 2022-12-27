@@ -35,11 +35,11 @@ spec:
 
         if [[ -z "$(params.cluster_config)" ]]; then
             echo Running command to default cluster ...
-            kubectl "$(params.command)" --namespace "$(params.namespace)" --dry-run -o yaml | kubectl apply -f -
+            kubectl $(params.command) --namespace $(params.namespace) --dry-run=client -o yaml | kubectl apply -f -
         else
             echo Running command to external cluster ...
             echo "$(params.cluster_config)" > /tmp/config
-            kubectl "$(params.command)" --namespace "$(params.namespace)" --dry-run -o yaml | kubectl apply --kubeconfig /tmp/config -f -
+            kubectl $(params.command) --namespace $(params.namespace) --dry-run=client -o yaml | kubectl apply --kubeconfig /tmp/config -f -
         fi
 
 

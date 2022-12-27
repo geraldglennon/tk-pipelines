@@ -30,11 +30,11 @@ spec:
 
         if [[ -z "$(params.cluster_config)" ]]; then
             echo Creating namespace "$(params.namespace)" to default cluster ...
-            kubectl create namespace "$(params.namespace)" --dry-run -o yaml | kubectl apply -f -
+            kubectl create namespace "$(params.namespace)" --dry-run=client -o yaml | kubectl apply -f -
         else
             echo Creating namespace "$(params.namespace)" to external cluster ...
             echo "$(params.cluster_config)" > /tmp/config
-            kubectl create namespace "$(params.namespace)" --dry-run -o yaml | kubectl apply --kubeconfig /tmp/config -f -
+            kubectl create namespace "$(params.namespace)" --dry-run=client -o yaml | kubectl apply --kubeconfig /tmp/config -f -
         fi
 
 
