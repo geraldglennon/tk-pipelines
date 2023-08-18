@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tekton-dashboard
+  annotations:
+    "kubernetes.io/ingress.class": nginx
+    "nginx.ingress.kubernetes.io/websocket-services": tekton-dashboard
+spec:
+  rules:
+  - host: tekton.localhost
+    http:
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: tekton-dashboard
+              port:
+                number: 9097
