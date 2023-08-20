@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: helm-deploy-pipeline
@@ -26,6 +26,9 @@ spec:
     - name: values
       description: The values file to be used
       default: ""
+    - name: docker_config_command
+      description: Kubectl command to create docker registry secret
+      default: ""
   tasks:
     - name: create-namespace
       params:
@@ -35,6 +38,18 @@ spec:
           value: $(params.namespace)
       taskRef:
         name: kubectl-create-namespace
+    - name: create-docker-secret
+      params:
+        - name: cluster_config
+          value: $(params.cluster_config)
+        - name: namespace
+          value: $(params.namespace)
+        - name: command
+          value: $(params.docker_config_command)
+      taskRef:
+        name: kubectl-command
+      runAfter:
+        - create-namespace
     - name: helm-deploy-package
       params:
         - name: url
@@ -53,3 +68,4 @@ spec:
         name: helm-install-upgrade
       runAfter:
         - create-namespace
+        - create-docker-secret

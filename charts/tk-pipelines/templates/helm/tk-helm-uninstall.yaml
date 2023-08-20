@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1beta1
+apiVersion: tekton.dev/v1
 kind: Task
 metadata:
   name: helm-uninstall
@@ -26,7 +26,7 @@ spec:
       description: Container image to be used
       default: "alpine/helm:3.10.2"
   steps:
-    - name: install-upgrade-package
+    - name: uninstall-package
       image: $(params.image)
       script: |
 

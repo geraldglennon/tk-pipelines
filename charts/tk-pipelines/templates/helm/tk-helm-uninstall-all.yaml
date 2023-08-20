@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
-  name: kubectl-create-namespace
+  name: helm-uninstall-all
   labels:
     app.kubernetes.io/name: {{ include "tk-pipelines.name" . }}
     helm.sh/chart: {{ include "tk-pipelines.chart" . }}
@@ -10,7 +10,7 @@ metadata:
 
 spec:
   description: >-
-    Create namespace if it does not exist
+    Uninstall all helm packages
 
   params:
     - name: cluster_config
@@ -21,20 +21,19 @@ spec:
       default: "default"
     - name: image
       description: Container image to be used
-      default: "bitnami/kubectl:1.25.5"
+      default: "alpine/helm:3.10.2"
   steps:
-    - name: create-namespace
+    - name: uninstall-all
       image: $(params.image)
       script: |
-        kubectl version
 
         if [[ -z "$(params.cluster_config)" ]]; then
-            echo Creating namespace "$(params.namespace)" to default cluster ...
-            kubectl create namespace "$(params.namespace)" --dry-run=client -o yaml | kubectl apply -f -
+            echo Uninstalling chart from default cluster ...
+            helm delete --namespace "$(params.namespace)" $(helm ls --short --namespace "$(params.namespace)")
         else
-            echo Creating namespace "$(params.namespace)" to external cluster ...
-            echo "$(params.cluster_config)" > /tmp/config
-            kubectl create namespace "$(params.namespace)" --dry-run=client -o yaml | kubectl apply --kubeconfig /tmp/config -f -
+            echo Uninstalling chart from external cluster ...
+            echo "$(params.cluster_config)" > config
+            helm delete --namespace "$(params.namespace)" --kubeconfig config $(helm ls --short --namespace "$(params.namespace)")
         fi
 
 
