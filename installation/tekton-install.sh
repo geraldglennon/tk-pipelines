@@ -1,16 +1,19 @@
-#!/bin/sh
+#!/bin/bash
 
-echo "Installing tekton"
-kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+echo "Installing tekton core"
+echo 
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/previous/v0.70.0/release.yaml
 
-echo
+echo 
 echo "Installing tekton triggers"
-kubectl apply -f https://storage.googleapis.com/tekton-releases/triggers/previous/v0.24.1/release.yaml
-kubectl apply -f https://storage.googleapis.com/tekton-releases/triggers/previous/v0.24.1/interceptors.yaml
+echo 
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/triggers/previous/v0.31.0/release.yaml
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/triggers/previous/v0.31.0/interceptors.yaml
 
-echo
+echo 
 echo "Installing tekton dasboard"
-kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/tekton-dashboard-release.yaml -n tekton-pipelines
+echo 
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/previous/v0.56.0/release-full.yaml -n tekton-pipelines
 
 echo
 echo "Installing tekton ingres"
